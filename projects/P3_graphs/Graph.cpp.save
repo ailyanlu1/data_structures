@@ -1,0 +1,309 @@
+//
+//  Graph.cpp
+//  
+//
+//  Created by BLAKE CONRAD on 4/16/15.
+//
+//
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "Graph.h"
+
+Vertex::Vertex(){
+    Vertex::vertexId = 0;
+    Vertex::edge_exists = false;
+    
+}
+
+Vertex::~Vertex(){
+    cout << "Goodbye, crewl world!" << endl;
+    delete[] Vertex::e;
+    delete this;
+}
+
+void Vertex::updateEdgeArray(int *array){
+    
+    cout << "HEY MAN IM HERE " << endl;
+    //create the correct dynamic array for the current instances edge component
+}
+
+Edge::Edge(Vertex a, Vertex b, int w){
+    
+    Edge::from = a;
+    Edge::to = b;
+    Edge::weight = w;
+
+}
+
+Edge::Edge(){
+
+}
+
+Edge::~Edge(){
+    delete this;
+}
+
+Graph::Graph(){    
+
+}
+
+
+Graph::~Graph(){
+    //delete[] V;
+}
+
+void Graph::writeGraph(int **map,Vertex *vertexArray, int *r, int vertex_num, int edge_num){
+    
+    string graphOut = "Graphout.txt";
+    ofstream of(graphOut.c_str());
+    of << vertex_num << " " << edge_num << endl;
+    
+    for (int i = 0; i < vertex_num; i++) {
+        int k = 0; //
+        int x = 0; //# of edge hits
+        of << vertexArray[i].vertexId << ": ";
+        for (int j = 0; j < vertex_num; j++) {
+            //cout << map[i][j] << "\t";
+            if (map[i][j] == 1) {
+                of << vertexArray[j].vertexId << " " << vertexArray[i].e[k].weight;
+                
+                of << ", ";
+                k++;
+                x++;
+            }
+        }
+        of << endl;
+    }
+    
+    of.close();
+}
+
+void Graph::readGraph(std::string fileName){
+    cout << fileName << endl;
+    Graph::src = fileName.c_str();
+    
+    // FILE INPUT
+    ifstream graphDataFile;
+    graphDataFile.open(fileName.c_str());
+    
+    // DECLARATIONS TO HOLD INITIAL DATA
+    string line;
+    string subline_vertex_count;
+    int vertex_num; //NUMBER OF VERTICES IN YOUR FILE
+    string subline_edge_count;
+    int edge_num; //NUMBER OF EDGES IN TOTAL AMONGST ALL VERTICES
+    
+    // DECLARATIONS FOR THE REST OF THE DATA
+    string subline_edge_va;
+    string subline_edge_vb;
+    string subline_edge_weight;
+    int edge_a;// vertexArray[i].e[k].from
+    int edge_b;// vertexArray[i].e[k].to
+    int edge_weight;
+    string temp;
+    int **house; // STORES FILE INPUT IN A LOGICAL FASHION AS INTS
+    int *arr;
+    
+    // DECLARATIONS FOR STORING DATA AS VERTICES AND EDGES
+    Vertex *vertexArray; //WILL HOLD ALL OF MY VERTICES IN CORRECT INDEX FORMAT
+    
+    /* FOR THE FIRST LINE OF THE FILE */
+    getline(graphDataFile,line);
+    for(int j = 0; j < line.length(); j++){ //for first line length
+        if(line.substr(j,1) == " "){
+            
+            // FIND VERTICES AND EDGES
+            subline_vertex_count = line.substr(0, j); // vertices
+            subline_edge_count = line.substr(j+1, line.length()); // edges
+        
+            // CONVERT
+            vertex_num = atoi(subline_vertex_count.c_str());
+            edge_num = atoi(subline_edge_count.c_str());
+        }
+    }
+    
+    /* FOR THE REST OF THE FILE */
+    int counter = 0;
+    for (int i = 0; i < edge_num; i++) { //for all lines
+        if (i == 0) {
+            house = new int*[edge_num];
+            for (int r = 0; r < edge_num; ++r) {
+                house[r] = new int[3];
+            }
+        }
+        
+        getline(graphDataFile, line);
+        
+        for (int j = 0; j < line.length(); j++) { //for that lines length
+            if (line.substr(j,1) == " ") {
+                
+                // STORE
+                subline_edge_va = line.substr(0,j);
+                // CONVERT
+                edge_a = atoi(subline_edge_va.c_str());
+                temp = line.substr(j+1, line.length()); // the rest of the string
+                
+                for (int k = 0; k < temp.length(); k++) { //length after the first space
+                    if (temp.substr(k,1) == " ") {
+                        
+                        // STORE
+                        subline_edge_vb = temp.substr(0, k);
+                        subline_edge_weight = temp.substr(k+1, temp.length());
+                        // CONVERT
+                        edge_b = atoi(subline_edge_vb.c_str());
+                        edge_weight = atoi(subline_edge_weight.c_str());
+                    }
+                }
+            }
+        }//after this loop I have all my info
+        
+        // MAKE AN ARRAY BEFORE INFORMATION GETS OVERWRITTEN
+        arr = new int[3];
+        arr[0] = edge_a;
+        arr[1] = edge_b;
+        arr[2] = edge_weight;
+        
+        // HOUSE NOW HOLDS ALL OF MY FILE INPUT INFORMATION
+        house[i] = arr;
+        
+    }
+    
+    // INITIALIZE MY VERTEXARRAY
+    vertexArray = new Vertex[vertex_num];
+    
+    for (int i = 0; i < edge_num; i++) {
+        vertexArray[i].vertexId = i;
+        cout << vertexArray[i].vertexId << endl;
+    }
+
+    // MAKE AN ARRAY OF COUNTERS, TO TELL ME HOW MANY EDGES A GIVEN VERTICE HAS
+    int *r = new int[vertex_num];
+    
+    for (int i = 0; i < vertex_num; i++) {
+        r[i] = 0; // vertex_num amount of counters
+    }
+    
+    /* r[i] tells me at vertex i, I have r[i] edges */
+    /* I am using this to know how many times to cycle through any given vertex's edges */
+    
+    // SET THEM CORRECTLY TO KNOW HOW MANY EDGES EACH VERTEX HAS
+    for (int i = 0; i < vertex_num; i++) {
+        for (int j = 0; j < edge_num; j++) {
+            if (vertexArray[i].vertexId == house[j][0]) {
+/*  "how many times does vertex[i] show up as an index column for house" will tell me how many times your file shows that vertex connected to an edge */
+                r[i]++;
+            }
+        }
+    }
+    
+    // INITIALIZE EDGE ARRAY PER VERTEX
+    for (int k = 0; k < vertex_num; k++) {
+        vertexArray[k].e = new Edge[r[k]];
+    }
+    
+
+    for (int i = 0; i < vertex_num; i++) {
+            int k = 0;
+        for (int j = 0; j < edge_num; j++) {
+            if (vertexArray[i].vertexId == house[j][0]) {
+                vertexArray[i].edge_exists = true; // for undirected graph.
+                cout << "Current Vertex Edge_Exists: " <<vertexArray[i].edge_exists << endl;
+                vertexArray[i].e[k].from = vertexArray[i];
+                cout << "Current Vertex Edge Array From: " << vertexArray[i].e[k].from.vertexId << endl;
+                vertexArray[i].e[k].to = vertexArray[house[j][1]];
+                cout << "Current Vertex Edge Array To: " << vertexArray[i].e[k].to.vertexId << endl;
+                vertexArray[i].e[k].weight = house[j][2];
+                cout << "Current Vertex Edge Array Weight: " << vertexArray[i].e[k].weight << endl;
+                k++;
+            }
+        }
+    }
+    
+    // CREATE AN ADJACENTCY LIST - WEIRD WAY
+    Graph::AdjList = new Vertex*[vertex_num];
+    for (int i = 0; i < vertex_num; ++i) {
+        AdjList[i] = new Vertex[r[i]];
+    }
+    
+    int **map;
+    map = new int*[vertex_num];
+    for (int i = 0; i < vertex_num; i++) {
+        map[i] = new int[vertex_num];
+    }
+
+    
+    // ADJACENTCY LIST COMPLETE
+    for (int i = 0; i < vertex_num; ++i) { //for every column
+        int k = 0;
+        for (int j = 0; j < vertex_num; ++j) { // now for every row
+                for (; r[i] > 0; --r[i]) { // for amt of edges, do{
+                    map[i][vertexArray[i].e[k].to.vertexId] = 1;
+                    k++;
+                
+            }
+        }
+    }
+    
+    // PRINT OUT OF MY ADJACENTCY LIST
+    for (int i = 0; i < vertex_num; i++) {
+        for (int j = 0; j < vertex_num; j++) {
+            cout << map[i][j] << "\t";
+        }
+        cout << endl;
+    }
+
+    //my cout results!!!
+    /* 0 1 0 1 */ // --- >>> vertexArray[0].e.to -->> vertexArray[1] && vertexArray[3];
+    /* 0 0 1 1 */ // --- >>> vertexArray[0].e.to -->> vertexArray[2] && vertexArray[3];
+    /* 0 0 0 1 */ // --- >>> vertexArray[0].e.to -->> vertexArray[3];
+    /* 0 0 0 0 */ // --- >>> vertexArray[0].e.to -->> no direted edges!!
+    // This shows me that my columns are horizontal and my rows are vertical
+    // The first vertical column is the vertex index number, and the preceeding numbers are the vertex in which it has an edge connecting it.
+    
+    //also make an undirected graph
+    
+    writeGraph(map, vertexArray, r, vertex_num, edge_num);
+    
+    
+    /*
+     
+     for each vertex with an edge,
+        for each edge on that vertex
+            make a new list object and push that vertex into the list.
+     
+     
+     */
+    
+    for (int i = 0; i < vertex_num; ++i) {
+        for (int j = 0; j < r[i]; ++j) {
+            cout << "current vertex's edge count" << endl;
+        }
+    }
+    
+    
+    
+    
+    
+    delete[] map;
+    delete r;
+    delete arr;
+    delete house;
+    //delete vertexArray;
+}
+
+
+
+/* 
+ 
+ file output should be fine, now move on to the next hurdle.
+ 
+ */
+
+
+
+

@@ -1,0 +1,37 @@
+//
+//  main.cpp
+//  
+//
+//  Created by BLAKE CONRAD on 4/1/15.
+//
+//
+
+#include <stdio.h>
+#include "NSPair.h"
+#include "BST.h"
+
+int main(){
+    
+    /*
+    IF YOU MAKE AN NSPAIR OBJECT:
+     1. READS IN THE FILE
+     2. MAKES AN ARRAY OF OBJECTS ACCORDING TO THE FILE
+     3. TIMES AND EXECUTES A QUICK SORT ALGORITHM
+     4. TIMES AND EXECUTES A INSERSTION SORT ALGORITHM
+     5. WRITES OUTPUT TO YOUR A NEW FILE FOR QSORTNS AND ISORTNS
+    */
+    NSPair initQsort("data.txt");
+    
+    /*
+     IF YOU MAKE A BST OBJECT WITH SORTED RESULTS:
+     1. MAKE A BST FROM THE FILE
+     2. CONSTRUCTS THE BINARY TREE
+     3. DO AN INORDER TRAVERSAL AND OUTPUT FILE RESULTS
+     4. FIND THE MAX STRING AND OUTPUT TO A FILE
+     */
+    // THE TREE IS BUILT TO RECEIVE THE SORTED RESULTS, NOT UNSORTED.
+    BST myTree("QsortNS_results.txt");
+
+    
+    return 0;
+}
